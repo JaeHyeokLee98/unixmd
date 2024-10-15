@@ -16,8 +16,8 @@ class CPA(object):
        :param integer out_freq: Frequency of printing output
        :param integer verbosity: Verbosity of output
     """
-    def __init__(self, molecule, thermostat, istate, dt, nsteps, nesteps, \
-        elec_object, propagator, l_print_dm, l_adj_nac, init_coef, unit_dt, out_freq, verbosity):
+    def __init__(self, molecule, thermostat, istate, dt, nsteps, \
+        unit_dt, out_freq, verbosity):
         # Save name of MQC dynamics
         self.md_type = self.__class__.__name__
 
@@ -30,7 +30,6 @@ class CPA(object):
         # Initialize input values
         self.istate = istate
         self.nsteps = nsteps
-        self.nesteps = nesteps
 
         # Initialize time step
         self.istep = -1
@@ -46,34 +45,6 @@ class CPA(object):
             error_message = "Invalid unit for time step!"
             error_vars = f"unit_dt = {unit_dt}"
             raise ValueError (f"( {self.md_type}.{call_name()} ) {error_message} ( {error_vars} )")
-
-        # None for BOMD case
-        self.elec_object = elec_object
-        if (self.elec_object != None):
-            self.elec_object = self.elec_object.lower()
-
-        if not (self.elec_object in [None, "coefficient", "density"]):
-            error_message = "Invalid electronic object!"
-            error_vars = f"elec_object = {self.elec_object}"
-            raise ValueError (f"( {self.md_type}.{call_name()} ) {error_message} ( {error_vars} )")
-
-        self.propagator = propagator
-        if (self.propagator != None):
-            self.propagator = self.propagator.lower()
-
-        if not (self.propagator in [None, "rk4", "exponential"]):
-            error_message = "Invalid electronic propagator!"
-            error_vars = f"propagator = {self.propagator}"
-            raise ValueError (f"( {self.md_type}.{call_name()} ) {error_message} ( {error_vars} )")
-
-        if (self.propagator == "exponential" and self.elec_object != "coefficient"):
-            error_message = "exponential propagator is incompatible with objects other than coefficient"
-            error_vars = f"elec_object = {self.elec_object}, propagator = {self.propagator}"
-            raise ValueError (f"( {self.md_type}.{call_name()} ) {error_message} ( {error_vars} )")
-
-        self.l_print_dm = l_print_dm
-
-        self.l_adj_nac = l_adj_nac
 
         self.rforce = np.zeros((self.mol.nat, self.mol.ndim))
 
